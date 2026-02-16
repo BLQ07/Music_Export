@@ -116,7 +116,7 @@ startActivity(intent1);
             }
     );
 
-    // 2. Метод для проверки (вызывать в onCreate или по нажатию)
+
     private void checkAuth() {
 
         Intent intent = new Intent(this, MainActivity4.class);
@@ -280,7 +280,7 @@ class WEB {
                 track.getArtist().add(new Artist(artist.getString("id"), artist.getString("name")));
             }
 
-            // Ссылка на XML с данными для скачивания
+
             Request dlReq = new Request.Builder()
                 .url("https://api.music.yandex.net:443/tracks/" +track.getId() + "/download-info")
                 .addHeader("Authorization", "OAuth " + TOKEN)
@@ -356,7 +356,7 @@ class OtherAdapter extends RecyclerView.Adapter<OtherAdapter.ViewHolder> {
                     JSONObject root1 = new JSONObject(res.body().string());
                     JSONObject result1 = root1.getJSONObject("result");
 
-                    // Получаем массив tracks напрямую из result
+
                     JSONArray tracks1 = result1.getJSONArray("tracks");
                     Log.d("TRACKS", tracks1.length() + "");
                     tracks.clear();
@@ -369,7 +369,7 @@ class OtherAdapter extends RecyclerView.Adapter<OtherAdapter.ViewHolder> {
                         JSONArray artists1 = trackObj1.getJSONArray("artists");
                         for (int j = 0; j < artists1.length(); j++) {
                             JSONObject artObj = artists1.getJSONObject(j);
-                            // Используем optString или String.valueOf, так как id в JSON может быть числом
+
                             track.getArtist().add(new Artist(String.valueOf(artObj.get("id")), artObj.getString("name")));
                         }
                         tracks.add(track);
@@ -510,13 +510,12 @@ class SimilarAdapter extends RecyclerView.Adapter<SimilarAdapter.ViewHolder>{
                     .addHeader("Authorization", "OAuth " + TOKEN)
                     .build();
                 try (Response res = client.newCall(req).execute()) {
-                    // if (!res.isSuccessful()) throw new IOException("API Error " + res.code());
 
                     JSONObject root1 = new JSONObject(res.body().string());
                     Log.d("JSON", root1.toString());
                     JSONObject result1 = root1.getJSONObject("result");
 
-                    // Получаем массив tracks напрямую из result
+
                     JSONArray tracks1 = result1.getJSONArray("similarTracks");
                     Log.d("TRACKS", tracks1.length() + "");
                     tracks.clear();
@@ -529,7 +528,7 @@ class SimilarAdapter extends RecyclerView.Adapter<SimilarAdapter.ViewHolder>{
                         JSONArray artists1 = trackObj1.getJSONArray("artists");
                         for (int j = 0; j < artists1.length(); j++) {
                             JSONObject artObj = artists1.getJSONObject(j);
-                            // Используем optString или String.valueOf, так как id в JSON может быть числом
+
                             track.getArtist().add(new Artist(String.valueOf(artObj.get("id")), artObj.getString("name")));
                         }
                         tracks.add(track);

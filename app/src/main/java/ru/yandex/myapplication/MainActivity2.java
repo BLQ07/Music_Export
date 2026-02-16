@@ -108,18 +108,14 @@ Boolean liked=true;
            Log.d("TAG", "getTracks: " + id + " " + file.getName());
             Date date = new Date(file.lastModified());
 
-// 2. Define a formatter with the desired pattern and locale
-// Locale is important for correct formatting in different regions
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
 
-// 3. Format the Date object to a String
             String dateString = simpleDateFormat.format(date);
            if(!id.equals("Unliked") && !id.equals("liked")&&!id.equals("profileInstalled")&&!id.equals("track.json")){
            n.put(id, dateString);}
         }
         return n;
     }
-    // 1. Регистрируем "слушатель" результата
     private final ActivityResultLauncher<Intent> loginLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -133,7 +129,6 @@ Boolean liked=true;
             }
     );
 
-    // 2. Метод для проверки (вызывать в onCreate или по нажатию)
     private void checkAuth() {
 
             Intent intent = new Intent(this, MainActivity4.class);
@@ -187,13 +182,12 @@ Boolean liked=true;
                 Log.e("FATAL", "Детали ошибки: ", e);
                 String errorMessage = e.getMessage();
 
-                // Если ошибка пустая, выведем название класса исключения
                 if (errorMessage == null) errorMessage = e.toString();
 
                 final String finalMsg = errorMessage;
                 runOnUiThread(() -> {
                     playButton.setText("Ошибка: " + finalMsg);
-                    // Выведем тост с полным текстом
+
                     Toast.makeText(this, "Ошибка: " + finalMsg, Toast.LENGTH_LONG).show();
                 });
             }

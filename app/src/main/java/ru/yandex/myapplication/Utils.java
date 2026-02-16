@@ -31,7 +31,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class Utils {
-    static final String SALT = "XGRB01828"; // Секретный ключ для MD5
+    static final String SALT = "XGRB01828";
 
     public static void moveToLiked(String id,Context c) {
         File file = new File(c.getFilesDir()+"/"+id+".mp3");
@@ -90,7 +90,7 @@ public class Utils {
             return file;
         }
         File file1 = new File(context.getFilesDir()+"/Unliked/"+id+".mp3");
-        // Log.e("FILE", file1.getParentFile().listFiles().toString());
+
         if (file1.exists()) {
 
             return file1;
@@ -188,7 +188,7 @@ public class Utils {
         }
         else {file.createNewFile();}
 
-        // 1. Получаем XML с параметрами сервера
+
         Request xmlReq = new Request.Builder().url(track.getUrlLoad()).build();
         String host, path, ts, s;
         try (Response xmlRes = client.newCall(xmlReq).execute()) {
@@ -199,14 +199,14 @@ public class Utils {
             s = getXmlTag(xml, "s");
         }
 
-        // 2. Генерируем подпись MD5 (алгоритм Яндекса)
+
         String sign = md5(SALT + path.substring(1) + s);
 
-        // 3. Формируем финальный URL
+
         String finalUrl = "https://" + host + "/get-mp3/" + sign + "/" + ts + path;
         Log.i("WEB", "Final URL: " + finalUrl);
 
-        // 4. Скачиваем сам файл
+
         Request fileReq = new Request.Builder().url(finalUrl).build();
         try (Response fileRes = client.newCall(fileReq).execute()) {
             if (!fileRes.isSuccessful()) throw new IOException("Download Error " + fileRes.code());
@@ -265,10 +265,7 @@ public class Utils {
             back.setOnClickListener(v -> {
                 if (player.isPlaying()) {
                     player.pause();
-                    //getCurrentPosition() - позиция в мс
-                    //getDuration() - длительность в мс
-                    //seekTo() - переместить позицию в мс
-                    //seekTo(long msec) - переместить позицию в мс
+
                     if (player.getCurrentPosition() > 10000&&player.getCurrentPosition()+10000 < player.getDuration()) {
                         player.seekTo(player.getCurrentPosition() - 10000);
                         player.start();

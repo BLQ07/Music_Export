@@ -137,7 +137,7 @@ public class MainActivity3 extends Activity {
 
     public void openDirectory() {
         Intent intent=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-        //intent.putExtra("check","919");
+
         startActivityForResult(intent, 100);
     }
 
@@ -146,7 +146,7 @@ public class MainActivity3 extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 100 && resultCode == RESULT_OK) {
-           // Toast.makeText(this, data.getStringExtra("check"), Toast.LENGTH_SHORT).show();
+
             Uri uri = data.getData();
             final int takeFlag=data.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -204,7 +204,7 @@ public class MainActivity3 extends Activity {
             }
 
             out.flush();
-            // ВАЖНО: Принудительно синхронизируем данные с диском
+
             if (out instanceof FileOutputStream) {
                 ((FileOutputStream) out).getFD().sync();
             }

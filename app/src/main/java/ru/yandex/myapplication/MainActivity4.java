@@ -29,7 +29,7 @@ public class MainActivity4 extends Activity {
 
         webView.getSettings().setJavaScriptEnabled(true);
         webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-        // Важно: иногда нужно подменить UA, чтобы Яндекс не ругался на встроенный браузер
+
         webView.getSettings().setUserAgentString("Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36");
 
         webView.setWebViewClient(new WebViewClient() {
@@ -55,11 +55,10 @@ public class MainActivity4 extends Activity {
     private void onAuthSuccess(String token) {
         saveToken(this, token); // сохраняем в SharedPreferences
 
-        // Устанавливаем результат "ОК"
+
         setResult(Activity.RESULT_OK);
 
-        // Закрываем AuthActivity. Система автоматически вернет вас
-        // на ту Activity, которая вызывала эту
+
         finish();
     }
 }
