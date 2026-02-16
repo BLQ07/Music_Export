@@ -3,6 +3,7 @@ package ru.yandex.myapplication;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.util.Log;
 import android.widget.Button;
@@ -23,8 +24,10 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.List;
 
+import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class Utils {
@@ -311,6 +314,57 @@ public class Utils {
             Log.e("PLAYER", "Ошибка плеера", e);
         }
     }
+public static String getToken(Context context){
+    SharedPreferences sharedPref = context.getSharedPreferences("token", Context.MODE_PRIVATE);
+    return sharedPref.getString("token", null);
+}
+public static void saveToken(Context context, String token){
+    SharedPreferences sharedPref = context.getSharedPreferences("token", Context.MODE_PRIVATE);
+    SharedPreferences.Editor editor = sharedPref.edit();
+    editor.putString("token", token);
+    editor.apply();
+}
+public static void createToken(Context context,String username,String password){
+  Log.i("WEBLOG", "createToken");
+  new Thread(() -> {
+      String json = login(username,password);
+      Log.i("WEBLOG", json);
+  }).start();
+
 
 
 }
+    public static String login(String user, String pass) {
+         OkHttpClient client = new OkHttpClient();
+         String AUTH_URL = "https://mobileproxy.passport.yandex.net";
+        // Тело запроса
+        RequestBody formBody = new FormBody.Builder()
+            .add("login", user)
+            .add("password", pass)
+            .build();
+
+        // Запрос с имитацией мобильного приложения
+        Request request = new Request.Builder()
+            .url(AUTH_URL)
+            .post(formBody)
+            .addHeader("User-Agent", "YandexMusic/6.17.3 (Android 11; Pixel 4)")
+            .addHeader("X-Yandex-OTP", "no")
+            .build();
+
+        // Синхронное выполнение через .execute()
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful() && response.body() != null) {
+                return response.body().string(); // Здесь будет JSON с токеном
+            } else {
+                return "Error: " + response.code();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+}
+
+
+
+

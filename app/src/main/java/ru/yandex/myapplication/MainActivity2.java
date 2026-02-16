@@ -1,8 +1,10 @@
 package ru.yandex.myapplication;
 
+import static androidx.activity.result.ActivityResultCallerKt.registerForActivityResult;
 import static ru.yandex.myapplication.Utils.*;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,7 +15,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,12 +41,15 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MainActivity2 extends Activity implements OnBack {
+public class MainActivity2 extends AppCompatActivity implements OnBack {
 Boolean liked=true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        if (Utils.getToken(this)==null) {
+            Toast.makeText(this, "Token не найден", Toast.LENGTH_SHORT).show();
+           checkAuth();
+        }
         setContentView(R.layout.activity_main2);
         Button export =findViewById(R.id.button5);
         export.setText("Export");
@@ -50,6 +58,16 @@ Boolean liked=true;
             intent.putExtra("liked", liked);
 
             startActivity(intent);
+        });
+        export.setOnLongClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("TOKEN");
+            TextView textView =new TextView(this);
+            textView.setTextIsSelectable(true);
+            textView.setText(Utils.getToken(this));
+            builder.setView(textView);
+            builder.show();
+            return true;
         });
 
         RecyclerView rv = findViewById(R.id.rv);
@@ -101,6 +119,28 @@ Boolean liked=true;
         }
         return n;
     }
+    // 1. Регистрируем "слушатель" результата
+    private final ActivityResultLauncher<Intent> loginLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                   recreate();
+
+                } else {
+
+                    finish();
+                }
+            }
+    );
+
+    // 2. Метод для проверки (вызывать в onCreate или по нажатию)
+    private void checkAuth() {
+
+            Intent intent = new Intent(this, MainActivity4.class);
+            loginLauncher.launch(intent);
+
+
+    }
 
     @Override
     public void onBack(Track track, Button button) {
@@ -128,7 +168,7 @@ Boolean liked=true;
                     return;
                 }
                 updateUI(playButton, "Получение инфо...");
-                web.getTrack(track);
+                web.getTrack(track,Utils.getToken(this));
 
                 updateUI(playButton, "Скачивание MP3...");
                 file = Utils.downloadTemp(track, this, "/Unliked/");
@@ -206,7 +246,7 @@ class LikedAdapter extends RecyclerView.Adapter<LikedAdapter.ViewHolder> {
         },0,5000);
     }
     private void loadData(Map<String,String> tracks,boolean liked) {
-         final String TOKEN = "y0__xCphuC2Bhje-AYgufvHthbeBInM8kGg5y_TuxAToeFe-G_-qg";
+         final String TOKEN = Utils.getToken(activity);
 
        new Thread(() -> {
            int count = 0;

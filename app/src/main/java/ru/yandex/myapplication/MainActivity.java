@@ -15,7 +15,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -34,7 +37,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MainActivity extends Activity implements OnBack {
+public class MainActivity extends AppCompatActivity implements OnBack {
 RecyclerView recyclerView;
 Boolean shared=true;
 String trackIdMain="";
@@ -43,6 +46,10 @@ String trackIdMain="";
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+if (Utils.getToken(this)==null) {
+    Toast.makeText(this, "Token не найден", Toast.LENGTH_SHORT).show();
+   checkAuth();
+}
         Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
@@ -95,7 +102,30 @@ startActivity(intent1);
                    }
 
                 }}}
-    }private void getSimilar(String trackId) {
+    }
+    private final ActivityResultLauncher<Intent> loginLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    recreate();
+
+                } else {
+
+                    finish();
+                }
+            }
+    );
+
+    // 2. Метод для проверки (вызывать в onCreate или по нажатию)
+    private void checkAuth() {
+
+        Intent intent = new Intent(this, MainActivity4.class);
+        loginLauncher.launch(intent);
+
+
+    }
+
+    private void getSimilar(String trackId) {
         recyclerView = findViewById(R.id.rv);
         SimilarAdapter similarAdapter = new SimilarAdapter(trackId,this,this);
         recyclerView.setAdapter(similarAdapter);
@@ -125,7 +155,7 @@ startActivity(intent1);
         new Thread(() -> {
             try {
                 WEB web = new WEB();
-           String other =     web.getArtist(trackId);
+           String other =     web.getArtist(trackId,this);
            runOnUiThread(() -> {
                recyclerView.setAdapter(new OtherAdapter(other,MainActivity.this,this));
                recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
@@ -154,7 +184,7 @@ startActivity(intent1);
 
 
                     new Thread(() -> {
-                        try {
+                        try {String TOKEN = Utils.getToken(this);
                             WEB web = new WEB();
                             File file =Utils.searchFile(track.getId(),this);
                             if(file!=null){
@@ -167,7 +197,7 @@ startActivity(intent1);
                                 return;
                             }
                             updateUI(playButton, "Получение инфо...");
-                             web.getTrack(track);
+                             web.getTrack(track,TOKEN);
 
                             updateUI(playButton, "Скачивание MP3...");
                              file =Utils.downloadTemp(track, this, "/Unliked/");
@@ -209,9 +239,11 @@ playMP3(track,button);
 
 class WEB {
     private final OkHttpClient client = new OkHttpClient();
-    private final String TOKEN = "y0__xCphuC2Bhje-AYgufvHthbeBInM8kGg5y_TuxAToeFe-G_-qg";
 
-    public String getArtist(String trackId) throws Exception {
+
+  public String getArtist(String trackId,Activity activity) throws Exception {
+
+    final     String TOKEN = Utils.getToken(activity);
         Request req1 = new Request.Builder()
 
             .url("https://api.music.yandex.net:443/tracks/" + trackId )
@@ -229,7 +261,7 @@ class WEB {
          return artistId;
 
         }}
-    public void getTrack(Track track) throws Exception {
+    public void getTrack(Track track,String TOKEN) throws Exception {
         Request req = new Request.Builder()
             .url("https://api.music.yandex.net:443/tracks/" +track.getId() )
             .addHeader("Authorization", "OAuth " + TOKEN)
@@ -310,7 +342,7 @@ class OtherAdapter extends RecyclerView.Adapter<OtherAdapter.ViewHolder> {
     private void loadData(String artistID, Activity context) {
         new Thread(() -> {
             try {
-                final String TOKEN = "y0__xCphuC2Bhje-AYgufvHthbeBInM8kGg5y_TuxAToeFe-G_-qg";
+                final String TOKEN = Utils.getToken(context);
                 Log.d("ARTIST", artistID);
                 OkHttpClient client = new OkHttpClient();
                 Request req = new Request.Builder()
@@ -469,7 +501,7 @@ class SimilarAdapter extends RecyclerView.Adapter<SimilarAdapter.ViewHolder>{
     private void loadData(String trackID, Activity context) {
         new Thread(() -> {
             try {
-                final String TOKEN = "y0__xCphuC2Bhje-AYgufvHthbeBInM8kGg5y_TuxAToeFe-G_-qg";
+                final String TOKEN = Utils.getToken(context);
                 Log.d("ARTIST", trackID);
                 OkHttpClient client = new OkHttpClient();
                 Request req = new Request.Builder()
