@@ -54,7 +54,7 @@ if (Utils.getToken(this)==null) {
         String action = intent.getAction();
         String type = intent.getType();
         Button select = findViewById(R.id.button10);
-        select.setText("АВТОР");
+        select.setText("ПОХОЖИЕ");
         select.setOnClickListener(v -> {
             Log.d("TAG", "onCreate: "+shared+" "+trackIdMain);
             if (shared) {
